@@ -1,0 +1,16 @@
+---
+title: "finalproject"
+output: html_document
+date: "2025-11-10"
+author: "Theodore Etuwewe & Usman Agboola" 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+df <- read.csv("premleague.csv")
+head(df)
+
+```
+
