@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Theodore Etuwewe &amp; Usman Agboola" />
+<meta name="author" content="By Theodore Etuwewe &amp; Usman Agboola" />
 
 <meta name="date" content="2025-11-10" />
 
-<title>finalproject</title>
+<title>Who were the best Premier League Players in their positions</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,99 +350,61 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">finalproject</h1>
-<h4 class="author">Theodore Etuwewe &amp; Usman Agboola</h4>
+<h1 class="title toc-ignore">Who were the best Premier League Players in
+their positions</h1>
+<h4 class="author">By Theodore Etuwewe &amp; Usman Agboola</h4>
 <h4 class="date">2025-11-10</h4>
 
 </div>
 
 
-<pre class="r"><code>df &lt;- read.csv(&quot;premleague.csv&quot;)
-head(df)</code></pre>
-<pre><code>##                   Name Jersey.Number    Club   Position Nationality Age
-## 1           Bernd Leno             1 Arsenal Goalkeeper     Germany  28
-## 2           Matt Macey            33 Arsenal Goalkeeper     England  26
-## 3 Rúnar Alex Rúnarsson            13 Arsenal Goalkeeper     Iceland  25
-## 4      Héctor Bellerín             2 Arsenal   Defender       Spain  25
-## 5       Kieran Tierney             3 Arsenal   Defender    Scotland  23
-## 6       William Saliba             4 Arsenal   Defender      France  19
-##   Appearances Wins Losses Goals Goals.per.match Headed.goals
-## 1          64   28     16     0              NA           NA
-## 2           0    0      0     0              NA           NA
-## 3           0    0      0     0              NA           NA
-## 4         160   90     37     7              NA            0
-## 5          16    7      5     1              NA            0
-## 6           0    0      0     0              NA            0
-##   Goals.with.right.foot Goals.with.left.foot Penalties.scored Freekicks.scored
-## 1                    NA                   NA               NA               NA
-## 2                    NA                   NA               NA               NA
-## 3                    NA                   NA               NA               NA
-## 4                     4                    3               NA               NA
-## 5                     0                    1               NA               NA
-## 6                     0                    0               NA               NA
-##   Shots Shots.on.target Shooting.accuracy.. Hit.woodwork Big.chances.missed
-## 1    NA              NA                               NA                 NA
-## 2    NA              NA                               NA                 NA
-## 3    NA              NA                               NA                 NA
-## 4    NA              NA                                3                 NA
-## 5    NA              NA                                0                 NA
-## 6    NA              NA                                0                 NA
-##   Clean.sheets Goals.conceded Tackles Tackle.success.. Last.man.tackles
-## 1           14             82      NA                                NA
-## 2            0              0      NA                                NA
-## 3            0              0      NA                                NA
-## 4           53            166     214              78%                1
-## 5            2             16      21              81%                0
-## 6            0              0       0               0%                0
-##   Blocked.shots Interceptions Clearances Headed.Clearance Clearances.off.line
-## 1            NA            NA         NA               NA                  NA
-## 2            NA            NA         NA               NA                  NA
-## 3            NA            NA         NA               NA                  NA
-## 4            32           208        304              143                   3
-## 5             1            12         32               12                   0
-## 6             0             0          0                0                   0
-##   Recoveries Duels.won Duels.lost Successful.50.50s Aerial.battles.won
-## 1         NA        NA         NA                NA                 NA
-## 2         NA        NA         NA                NA                 NA
-## 3         NA        NA         NA                NA                 NA
-## 4        732       611        709               196                161
-## 5         63        55         38                12                 10
-## 6          0         0          0                 0                  0
-##   Aerial.battles.lost Own.goals Errors.leading.to.goal Assists Passes
-## 1                  NA         0                      7       0   1783
-## 2                  NA         0                      0       0      0
-## 3                  NA         0                      0       0      0
-## 4                 215         1                      1      18   7125
-## 5                  16         0                      0       1    519
-## 6                   0         0                      0       0      0
-##   Passes.per.match Big.chances.created Crosses Cross.accuracy.. Through.balls
-## 1            27.86                  NA      NA                             NA
-## 2             0.00                  NA      NA                             NA
-## 3             0.00                  NA      NA                             NA
-## 4            44.53                  28     389              16%            31
-## 5            32.44                   1      45              18%             0
-## 6             0.00                   0       0               0%             0
-##   Accurate.long.balls Saves Penalties.saved Punches High.Claims Catches
-## 1                 234   222               1      34          26      17
-## 2                   0     0               0       0           0       0
-## 3                   0     0               0       0           0       0
-## 4                 144    NA              NA      NA          NA      NA
-## 5                  22    NA              NA      NA          NA      NA
-## 6                   0    NA              NA      NA          NA      NA
-##   Sweeper.clearances Throw.outs Goal.Kicks Yellow.cards Red.cards Fouls
-## 1                 28        375        489            2         0     0
-## 2                  0          0          0            0         0     0
-## 3                  0          0          0            0         0     0
-## 4                 NA         NA         NA           23         0   125
-## 5                 NA         NA         NA            2         0     9
-## 6                 NA         NA         NA            0         0     0
-##   Offsides
-## 1       NA
-## 2       NA
-## 3       NA
-## 4        8
-## 5        0
-## 6        0</code></pre>
+<p>Cleaning Up process</p>
+<pre class="r"><code>premleague &lt;- premleague %&gt;%
+  select(-matches(&quot;^Unnamed&quot;))  # removes empty or unnamed columns
+
+# Removes rows with missing player names
+premleague &lt;- premleague %&gt;%
+  filter(!is.na(Name) &amp; Name != &quot;&quot;)
+
+# Trims extra spaces in text columns
+premleague &lt;- premleague %&gt;%
+  mutate(across(where(is.character), ~ str_trim(.)))
+
+# Removes duplicate rows (if any)
+premleague &lt;- premleague %&gt;%
+  distinct()</code></pre>
+<p>The dataset contains detailed statistics for Premier League players
+like their offensive metrics, defensive metrics, and goalkeeper-specific
+statistics. We got the dataset from Kaggle. What makes it interesting is
+the depth of information for each player, allowing analysis of scoring
+efficiency, defensive performance, and overall contribution to the team.
+It enables comparisons between players across positions, highlighting
+strengths and patterns that are not obvious from simple totals, such as
+who is the most efficient scorer or the most influential defender.</p>
+<p>#Introduction The Premier League is a battlefield, and every player
+is fighting for glory. Because of this, we were inspired to find out who
+was truly number 1 in their positions. The analysis aims to dive into
+the stats that separate the stars from the rest; goals, assists,
+tackles, interceptions, clean sheets, and more. By looking at offensive
+firepower, defensive strength, and goalkeeping feats, we aim to crown
+the ultimate player of the season the one who dominates all players of
+the game.</p>
+<p>#What do we intend to learn from this data? 1. Who scored the most
+goals?</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>Who provided the most assists or created the most big
+chances?</p></li>
+<li><p>Who had the highest goal involvement (goals + assists)?</p></li>
+<li><p>Which midfielders had the highest passing accuracy and most key
+passes?</p></li>
+<li><p>Which defenders had the most tackles, interceptions, and
+clearances?</p></li>
+<li><p>Which goalkeepers had the most clean sheets, saves, and penalties
+saved?</p></li>
+<li><p>Who had the best overall efficiency?</p></li>
+<li><p>Who had the highest combined offensive and defensive
+contribution?</p></li>
+</ol>
 
 
 

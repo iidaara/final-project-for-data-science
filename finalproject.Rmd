@@ -1,16 +1,60 @@
 ---
-title: "finalproject"
+title: "Who were the best Premier League Players in their positions"
 output: html_document
 date: "2025-11-10"
-author: "Theodore Etuwewe & Usman Agboola" 
+author: " By Theodore Etuwewe & Usman Agboola" 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+
+premleague <- read.csv("premleague.csv")
 ```
+
+
+Cleaning Up process
+
 ```{r}
-df <- read.csv("premleague.csv")
-head(df)
+
+premleague <- premleague %>%
+  select(-matches("^Unnamed"))  # removes empty or unnamed columns
+
+# Removes rows with missing player names
+premleague <- premleague %>%
+  filter(!is.na(Name) & Name != "")
+
+# Trims extra spaces in text columns
+premleague <- premleague %>%
+  mutate(across(where(is.character), ~ str_trim(.)))
+
+# Removes duplicate rows (if any)
+premleague <- premleague %>%
+  distinct()
 
 ```
 
+The dataset contains detailed statistics for Premier League players like their offensive metrics, defensive metrics, and goalkeeper-specific statistics. We got the dataset from Kaggle. What makes it interesting is the depth of information for each player, allowing analysis of scoring efficiency, defensive performance, and overall contribution to the team. It enables comparisons between players across positions, highlighting strengths and patterns that are not obvious from simple totals, such as who is the most efficient scorer or the most influential defender.
+
+#Introduction
+The Premier League is a battlefield, and every player is fighting for glory. Because of this, we were inspired to find out who was truly number 1 in their positions. The analysis aims to dive into the stats that separate the stars from the rest; goals, assists, tackles, interceptions, clean sheets, and more. By looking at offensive firepower, defensive strength, and goalkeeping feats, we aim to crown the ultimate player of the season the one who dominates all players of the game. 
+
+
+#What do we intend to learn from this data?
+1. Who scored the most goals?
+
+2. Who provided the most assists or created the most big chances?
+
+3. Who had the highest goal involvement (goals + assists)?
+
+4. Which midfielders had the highest passing accuracy and most key passes?
+
+5. Which defenders had the most tackles, interceptions, and clearances?
+
+6. Which goalkeepers had the most clean sheets, saves, and penalties saved?
+
+7. Who had the best overall efficiency?
+
+8. Who had the highest combined offensive and defensive contribution?
