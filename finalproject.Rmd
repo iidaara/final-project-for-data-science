@@ -27,9 +27,6 @@ But before we look into the data, lets clean it up a bit.
 
 ```{r}
 
-library(dplyr)
-library(stringr)
-
 premleague <- premleague %>%
   mutate(across(everything(), ~ ifelse(is.na(.), 0, .))) %>%  # changes NA values to zero
   filter(!is.na(Name) & Name != "") %>%                       # removes rows with missing player name     
@@ -53,19 +50,17 @@ As you can see, there is a lot to look at here. This dataset contains detailed s
 # *Other questions*
 1. Who scored the most goals?
 
-2. Who provided the most assists or created the most big chances?
+2. Who provided the most assists?
 
-3. Who had the highest goal involvement (goals + assists)?
+3. Who contributes the most per appearance?
 
-4. Which midfielders had the highest passing accuracy and most key passes?
+4. How does each position contribute to scoring goals or performing assists?
 
-5. Which defenders had the most tackles, interceptions, and clearances?
+5. Do younger or older players achieve more with goals pr assists?
 
-6. Which goalkeepers had the most clean sheets, saves, and penalties saved?
+6. Which clubs had the most productive players?
 
-7. Who had the best overall efficiency?
-
-8. Who had the highest combined offensive and defensive contribution?
+7. What percentage of a teams goals does each player contribute?
 
 
 *Alright*. enough chitchat. I believe its time to get down and dirty with the details.
@@ -79,7 +74,7 @@ topgoals <- premleague %>%
 
 ggplot(topgoals, aes(x = reorder(Name, Goals), y = Goals)) +
   geom_col(fill = "steelblue") + 
-  geom_text(aes(label = Goals), vjust = -0.5) +
+  geom_text(aes(label = Goals), hjust = -0.1) +
   coord_flip() +
   labs(
     title = "Top 10 Goal Scorers",
@@ -89,7 +84,7 @@ theme_minimal()
 ```
 
 
-# *2. Who provided the most assists or created the most big chances?*
+# *2. Who provided the most assists?*
 
 ```{r}
 topassists <- premleague %>% 
@@ -98,6 +93,7 @@ topassists <- premleague %>%
 
 ggplot(topassists, aes(x = reorder(Name, Assists), y = Assists, fill = Assists)) +
   geom_col() +
+  geom_text(aes(label = Assists), hjust = -0.1) +
   labs(
     title = "Top 10 Assist Makers",
     x = "Player" ,
@@ -108,62 +104,58 @@ ggplot(topassists, aes(x = reorder(Name, Assists), y = Assists, fill = Assists))
 ```
 
 
-# *3. Who had the highest goal involvement (goals + assists)?*
+
+# *3. Who contributes the most per appearance?* 
 
 ```{r}
 
-```
+premleague <- premleague %>%
+  mutate(GoalInvolvement = Goals + Assists,
+         InvolvementPerAppearance = GoalInvolvement / Appearances)
 
-4. Which midfielders had the highest passing accuracy and most key passes?
+top10efficiency <- premleague %>%
+  filter(Appearances > 5) %>%
+  arrange(-InvolvementPerAppearance) %>%
+  slice_head(n = 10)
 
-5. Which defenders had the most tackles, interceptions, and clearances?
-
-6. Which goalkeepers had the most clean sheets, saves, and penalties saved?
-
-# *7. Who had the best overall efficiency?*
-
-First we need to determine how we will get the efficiency of the players. We did this by combining variables such as goals, assists, interceptions, etc. That's how we'll see who shined brighter than their peers.
-
-```{r}
-efficiency <- premleague %>%
-  mutate(
-    efficiency = Goals + Assists + (Tackles + Interceptions + Clearances) / 10)
-```
-
-
-```{r}
-top_eff <- premleague %>%
-  slice_max(order_by = efficiency, n = 15) # Gives the top 15 efficient players
-
-heatdata <- top_eff %>%
-  select(Name, Club, Goals, Assists, Tackles, Interceptions, Clearances) %>%
-  pivot_longer(
-    cols = c(Goals, Assists, Tackles, Interceptions, Clearances),
-    names_to = "Stat",
-    values_to = "Value"
-  )  # Preparing data for the heatmap
-
-# Compute order for players
-playerorder <- heatdata %>%
-  group_by(Name) %>%
-  summarise(avg_value = mean(Value, na.rm = TRUE)) %>%
-  arrange(desc(avg_value)) %>%
-  pull(Name)
-
-# Heatmap
-ggplot(heatdata, aes(x = Stat, y = factor(Name, levels = playerorder), fill = Value)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low = "white", high = "darkgreen") +
+ggplot(top10efficiency, aes(x = InvolvementPerAppearance, 
+                             y = reorder(Name, InvolvementPerAppearance))) +
+  geom_segment(aes(x = 0, 
+                   xend = InvolvementPerAppearance, 
+                   yend = Name), 
+               color = "grey", linewidth = 1.2) +
+  geom_point(color = "darkblue", size = 4) +
+  geom_text(aes(label = round(InvolvementPerAppearance, 2)), 
+            hjust = -0.3, size = 3.5) +
   labs(
-    title = "Top 15 Premier League Players by Efficiency Stats",
-    x = "Statistic",
-    y = "Player Name"
+    title = "Top 10 Players by Goal Involvement per Appearance",
+    x = "Goal Involvement per Appearance",
+    y = "Player"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+  theme(panel.grid.major.y = element_blank())
 
 ```
 
-8. Who had the highest combined offensive and defensive contribution?
+
+# *4. How does each position contribute to scoring goals or performing assists?*
+
+```{r}
+ggplot(premleague, aes (x = Position, y = Goals + Assists, fill = Position)) +
+  geom_boxplot() +
+  labs(
+    title = "Distribution of Goal Involvement by Position",
+    x = "Postion",
+    y = "Goal Involvement (Goals & Assists)"
+  ) + 
+  theme_classic()+
+  theme(legend.position = "none")
+```
+
+
+5. Do younger or older players achieve more with goals pr assists?
+
+6. Which clubs had the most productive players?
+
+7. What percentage of a teams goals does each player contribute?
 
