@@ -33,8 +33,6 @@ premleague <- premleague %>%
   distinct()                                                  # removes duplicate rows
 
 glimpse(premleague)
-
-
 ```
 
 As you can see, there is a lot to look at here. This dataset contains detailed statistics for Premier League players like their offensive metrics, defensive metrics, and goalkeeper-specific statistics. What makes it interesting is the depth of information for each player, allowing analysis of scoring efficiency, defensive performance, and overall contribution to the team. It enables comparisons between players across positions, highlighting strengths and patterns that are not obvious from simple totals, such as who is the most efficient scorer or the most influential defender.
@@ -56,7 +54,7 @@ As you can see, there is a lot to look at here. This dataset contains detailed s
 
 4. How does each position contribute to scoring goals or performing assists?
 
-5. Do younger or older players achieve more with goals pr assists?
+5. Does age affect a players involvement in goals or assists?
 
 6. Which clubs had the most productive players?
 
@@ -132,8 +130,7 @@ ggplot(top10efficiency, aes(x = InvolvementPerAppearance,
     x = "Goal Involvement per Appearance",
     y = "Player"
   ) +
-  theme_minimal() +
-  theme(panel.grid.major.y = element_blank())
+  theme_classic() 
 
 ```
 
@@ -153,9 +150,27 @@ ggplot(premleague, aes (x = Position, y = Goals + Assists, fill = Position)) +
 ```
 
 
-5. Do younger or older players achieve more with goals pr assists?
+# *5. Does age affect a players involvement in goals or assists?*
 
-6. Which clubs had the most productive players?
+From old legends like Thiago Silva to young new faces like Trent Alexander Arnold, we aim to find out if father time really does have a hand in the performance of a player. 
+
+```{r}
+ggplot(premleague, aes(x = Age, y = Goals + Assists, color = Age)) +
+  geom_point(alpha = 0.7, size = 4) +
+  scale_color_gradient(low = "steelblue", high = "red") +
+  labs(
+    title = "Age vs Goal/Assist Involvement",
+    x = "Age",
+    y = "Goal Involvement (Goals + Assists)",
+    color = "Age"
+  ) +
+theme_minimal()
+```
+
+As you can see, father time unfortunately does. Younger players are more likely to be bodied out by their older counterparts and the older players simply may not have the stamina to keep up with the younger ones. But it would seem that those between the ages of 25-30 seem to be in peak physical condition, so they don't have much to worry about. 
+
+
+# *6. Which clubs had the most productive players?*
 
 7. What percentage of a teams goals does each player contribute?
 
