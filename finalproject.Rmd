@@ -1,5 +1,5 @@
 ---
-title: "Who were the best Premier League Players in their positions"
+title: "Who were the best Premier League Players by their positions"
 output: html_document
 date: "2025-11-10"
 author: " By Theodore Etuwewe & Usman Agboola" 
@@ -13,6 +13,7 @@ library(dplyr)
 library(readr)
 library(scales)
 library(stringr)
+library(ggplot2)
 premleague <- read.csv("premleague.csv")
 ```
 
@@ -28,7 +29,6 @@ But before we look into the data, lets clean it up a bit.
 ```{r}
 
 premleague <- premleague %>%
-  mutate(across(everything(), ~ ifelse(is.na(.), 0, .))) %>%  # changes NA values to zero
   filter(!is.na(Name) & Name != "") %>%                       # removes rows with missing player name     
   distinct()                                                  # removes duplicate rows
 
@@ -43,7 +43,7 @@ As you can see, there is a lot to look at here. This dataset contains detailed s
 # *What do we intend to learn from this data?*
 
 # *Core question*
-1. Who is the best person to ever touch the Field? 
+1. What four players would be the foundation of a "Dream Team" ?
 
 # *Other questions*
 1. Who scored the most goals?
@@ -56,14 +56,13 @@ As you can see, there is a lot to look at here. This dataset contains detailed s
 
 5. Does age affect a players involvement in goals or assists?
 
-6. Which clubs had the most productive players?
-
-7. What percentage of a teams goals does each player contribute?
+6. What percentage of a teams goals does each player contribute?
 
 
 *Alright*. enough chitchat. I believe its time to get down and dirty with the details.
 
 # *1.Who scored the most goals?*
+If we are being honest, this is all everyone and I mean *YOU* and me care about. Sure ironclad defense raises praise, last minute saves turn heads and flow state passes test ones faith, but sadly, these things dont bring in the win. Goals do. So lets find out who brings home the most bacon in the league.
 
 ```{r}
 topgoals <- premleague %>% 
@@ -81,8 +80,11 @@ ggplot(topgoals, aes(x = reorder(Name, Goals), y = Goals)) +
 theme_minimal()
 ```
 
+As the data shows, Sergio Aguero had the most goals during the 2010-2020 Premier league season. The code ranked all attackers by goals and plots the top 10 and Aguero's bar shoots forward like its running from a defender. Being over 40+ goals ahead of the runner up was enough to instill fear even in the most hardened goalkeepers.
 
 # *2. Who provided the most assists?*
+
+Yes we all love scoring goals and celebrating afterwards but there is something that tends to be overlooked. These goals would not have happened if not for the effort of great midfielders. Here, we aim to find out who was the most influential midfielder, the man who made such wonderful goals possible. 
 
 ```{r}
 topassists <- premleague %>% 
@@ -101,9 +103,11 @@ ggplot(topassists, aes(x = reorder(Name, Assists), y = Assists, fill = Assists))
   coord_flip()
 ```
 
-
+Turns out James Milner basically was the league’s assist wizard. The chart shows him handing out goals like party favors, his bar soars above everyone else, practically winking at the defenders. The gradient makes it official too. Darker green, bigger impact, more magic. The top 10 players are like a league of assist superheroes, but Milner is clearly the one wearing the cape, setting up teammates and making the pitch his personal playground.
 
 # *3. Who contributes the most per appearance?* 
+
+This is all about efficiency, which players make the biggest impact every time they step on the pitch. To reach a conclusion, we created a “Goal Involvement” stat by adding goals and assists, then divided it by appearances to see who packs the most punch per game. Filtering out players with fewer than five appearances keeps the sample fair.
 
 ```{r}
 
@@ -121,10 +125,10 @@ ggplot(top10efficiency, aes(x = InvolvementPerAppearance,
   geom_segment(aes(x = 0, 
                    xend = InvolvementPerAppearance, 
                    yend = Name), 
-               color = "grey", linewidth = 1.2) +
+               color = "grey") +
   geom_point(color = "darkblue", size = 4) +
   geom_text(aes(label = round(InvolvementPerAppearance, 2)), 
-            hjust = -0.3, size = 3.5) +
+            vjust = -0.8, size = 3.5) +
   labs(
     title = "Top 10 Players by Goal Involvement per Appearance",
     x = "Goal Involvement per Appearance",
@@ -134,8 +138,11 @@ ggplot(top10efficiency, aes(x = InvolvementPerAppearance,
 
 ```
 
+From the results, you can spot the real game changers. The players who aren’t just scoring or assisting occasionally, they’re delivering consistently every time they play. It’s like a cheat code for impact, the longer the line and the higher the dot, the more indispensable the player. Basically, these top 10 are the “per-appearance legends” of the league, showing who you want on your fantasy team if you care about efficiency over volume.
 
 # *4. How does each position contribute to scoring goals or performing assists?*
+
+These two boxplots give a clear picture of how goal involvement is distributed across different positions. The first plot shows the raw values, letting you see which positions naturally contribute the most. Forwards dominate the upper end, as expected, they’re the ones putting the ball in the net, while midfielders show a mix of assists and occasional goals. Defenders and goalkeepers cluster near the bottom, reflecting their limited attacking roles.
 
 ```{r}
 ggplot(premleague, aes (x = Position, y = Goals + Assists, fill = Position)) +
@@ -147,7 +154,20 @@ ggplot(premleague, aes (x = Position, y = Goals + Assists, fill = Position)) +
   ) + 
   theme_classic()+
   theme(legend.position = "none")
+
+
+ggplot(premleague, aes (x = Position, y = log(Goals + Assists), fill = Position)) +
+geom_boxplot() +
+labs(
+title = "Log Scale - Distribution of Goal Involvement by Position",
+x = "Postion",
+y = "Log of Goal Involvement (Goals & Assists)"
+) +
+theme_classic()+
+theme(legend.position = "none")
 ```
+
+The second plot uses a log scale, which tames the extreme values and makes it easier to compare the spread across positions. It highlights variability in midfielders and forwards without being overshadowed by a few prolific scorers. This view shows that while most defenders and goalkeepers stay low, midfielders can have surprisingly high impact games, and forwards consistently reach the top.
 
 
 # *5. Does age affect a players involvement in goals or assists?*
@@ -156,7 +176,7 @@ From old legends like Thiago Silva to young new faces like Trent Alexander Arnol
 
 ```{r}
 ggplot(premleague, aes(x = Age, y = Goals + Assists, color = Age)) +
-  geom_point(alpha = 0.7, size = 4) +
+  geom_point(size = 4) +
   scale_color_gradient(low = "steelblue", high = "red") +
   labs(
     title = "Age vs Goal/Assist Involvement",
@@ -170,7 +190,74 @@ theme_minimal()
 As you can see, father time unfortunately does. Younger players are more likely to be bodied out by their older counterparts and the older players simply may not have the stamina to keep up with the younger ones. But it would seem that those between the ages of 25-30 seem to be in peak physical condition, so they don't have much to worry about. 
 
 
-# *6. Which clubs had the most productive players?*
+# *6. What percentage of a teams goals does each player contribute?*
 
-7. What percentage of a teams goals does each player contribute?
+Here, we dive into who really carries their team’s attack. First, we calculated each club’s total goals, then determined what percentage of that total each player scored. By arranging players from highest to lowest contribution and picking the top 15, we can see the true goal-getters.
+
+```{r}
+
+teamgoals <- premleague %>%
+  group_by(Club) %>%
+  summarise(teamtotalgoals = sum(Goals, na.rm = TRUE))
+
+playersharedgoal <- premleague %>%
+  left_join(teamgoals, by = "Club") %>%
+  mutate(
+    sharedgoal = (Goals / teamtotalgoals) * 100
+  )
+
+topcontributors <- playersharedgoal %>%
+  arrange(-sharedgoal) %>%
+  slice_head(n = 15)
+
+ggplot(topcontributors, aes(
+  x = reorder(Name, sharedgoal),
+  y = sharedgoal,
+  fill = Club
+)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Percentage of Team Goals Contributed by Players",
+    x = "Player",
+    y = "Percent of Team Goals"
+  ) +
+  theme_minimal()
+
+```
+
+The results show that indeed there is an I in team. From the results, you can identify the players who are mission-critical for their squads, those who, if they don’t score, their team’s attack really struggles. This visualization turns raw goal counts into a perspective on influence and responsibility, showing who is the true heartbeat of their team’s offense.
+
+
+Now, with all we've seen. It's about time to ask the real question we all gathered here for.
+
+# *What four players would you build a dream team around?*
+
+```{r}
+library(knitr)
+
+dreamteam <- premleague %>%
+  mutate(Position = as.character(Position)) %>%
+  
+  group_by(Position) %>%
+  slice_max(
+    order_by = case_when(
+      Position == "Forward"     ~ Goals,
+      Position == "Midfielder"  ~ Assists,
+      Position == "Defender"    ~ Tackles,
+      Position == "Goalkeeper"  ~ Clean.sheets,
+    ),
+    n = 1
+  ) %>%
+  ungroup() %>%
+  
+  select(Name, Club, Position, Goals, Assists, Tackles, Clean.sheets)
+
+kable(dreamteam, caption = "Premier League Dream Team")
+```
+To find out who the foundation  of this team would be, I checked the real column names so I wasn’t guessing who had goals, tackles, or clean sheets. Then I picked one simple, fair metric for each position; goals for forwards, assists for midfielders, tackles for defenders, and clean sheets for goalkeepers. After that, I grouped players by position, grabbed the top performer in each group, and stitched the four winners into one neat “Dream Team” table. The result delivers one elite forward, one midfield engine, one defensive wall, and one keeper who refuses to let anything in. It’s like assembling the Avengers, but with shin guards.
+
+# *Summary*
+
+Overall, the analysis paints a full picture of the league’s offensive landscape, the prolific scorers, the creative engines, the consistent performers, and the indispensable stars. Putting it all together, and we’ve got a cast of Premier League legends, the creators, the finishers, the efficient machines, and the indispensable heroes. Perfect for spotting dream-team builders or just bragging about your favorite players’ impact.
 
