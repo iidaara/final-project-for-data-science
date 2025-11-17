@@ -62,9 +62,9 @@ As you can see, there is a lot to look at here. This dataset contains detailed s
 *Alright*. enough chitchat. I believe its time to get down and dirty with the details.
 
 # *1.Who scored the most goals?*
-If we are being honest, this is all everyone and I mean *YOU* and me care about. Sure ironclad defense raises praise, last minute saves turn heads and flow state passes test ones faith, but sadly, these things dont bring in the win. Goals do. So lets find out who brings home the most bacon in the league.
+If we are being honest, this is all everyone and I mean *YOU* and me care about. Sure ironclad defense raises praise, last minute saves turn heads and flow state passes test ones faith, but sadly, these things don't bring home the win. Goals do. So lets find out who brings home the most bacon in the league.
 
-```{r}
+```{r echo=FALSE}
 topgoals <- premleague %>% 
   arrange(-Goals) %>% 
   slice_head(n = 10)
@@ -86,7 +86,7 @@ As the data shows, Sergio Aguero had the most goals during the 2010-2020 Premier
 
 Yes we all love scoring goals and celebrating afterwards but there is something that tends to be overlooked. These goals would not have happened if not for the effort of great midfielders. Here, we aim to find out who was the most influential midfielder, the man who made such wonderful goals possible. 
 
-```{r}
+```{r echo=FALSE}
 topassists <- premleague %>% 
   arrange(-Assists) %>% 
   slice_head(n = 10)
@@ -109,7 +109,7 @@ Turns out James Milner basically was the league’s assist wizard. The chart sho
 
 This is all about efficiency, which players make the biggest impact every time they step on the pitch. To reach a conclusion, we created a “Goal Involvement” stat by adding goals and assists, then divided it by appearances to see who packs the most punch per game. Filtering out players with fewer than five appearances keeps the sample fair.
 
-```{r}
+```{r echo=FALSE}
 
 premleague <- premleague %>%
   mutate(GoalInvolvement = Goals + Assists,
@@ -144,7 +144,7 @@ From the results, you can spot the real game changers. The players who aren’t 
 
 These two boxplots give a clear picture of how goal involvement is distributed across different positions. The first plot shows the raw values, letting you see which positions naturally contribute the most. Forwards dominate the upper end, as expected, they’re the ones putting the ball in the net, while midfielders show a mix of assists and occasional goals. Defenders and goalkeepers cluster near the bottom, reflecting their limited attacking roles.
 
-```{r}
+```{r echo=FALSE}
 ggplot(premleague, aes (x = Position, y = Goals + Assists, fill = Position)) +
   geom_boxplot() +
   labs(
@@ -174,7 +174,7 @@ The second plot uses a log scale, which tames the extreme values and makes it ea
 
 From old legends like Thiago Silva to young new faces like Trent Alexander Arnold, we aim to find out if father time really does have a hand in the performance of a player. 
 
-```{r}
+```{r echo=FALSE}
 ggplot(premleague, aes(x = Age, y = Goals + Assists, color = Age)) +
   geom_point(size = 4) +
   scale_color_gradient(low = "steelblue", high = "red") +
@@ -194,7 +194,7 @@ As you can see, father time unfortunately does. Younger players are more likely 
 
 Here, we dive into who really carries their team’s attack. First, we calculated each club’s total goals, then determined what percentage of that total each player scored. By arranging players from highest to lowest contribution and picking the top 15, we can see the true goal-getters.
 
-```{r}
+```{r echo=FALSE}
 
 teamgoals <- premleague %>%
   group_by(Club) %>%
@@ -233,7 +233,10 @@ Now, with all we've seen. It's about time to ask the real question we all gather
 
 # *What four players would you build a dream team around?*
 
-```{r}
+
+To find out who the foundation  of this team would be, I checked the real column names so I wasn’t guessing who had goals, tackles, or clean sheets. Then I picked one simple, fair metric for each position; goals for forwards, assists for midfielders, tackles for defenders, and clean sheets for goalkeepers. After that, I grouped players by position, grabbed the top performer in each group, and stitched the four winners into one neat “Dream Team” table. The result delivers one elite forward, one midfield engine, one defensive wall, and one keeper who refuses to let anything in. It’s like assembling the Avengers, but with shin guards.
+
+```{r echo=FALSE}
 library(knitr)
 
 dreamteam <- premleague %>%
@@ -255,7 +258,8 @@ dreamteam <- premleague %>%
 
 kable(dreamteam, caption = "Premier League Dream Team")
 ```
-To find out who the foundation  of this team would be, I checked the real column names so I wasn’t guessing who had goals, tackles, or clean sheets. Then I picked one simple, fair metric for each position; goals for forwards, assists for midfielders, tackles for defenders, and clean sheets for goalkeepers. After that, I grouped players by position, grabbed the top performer in each group, and stitched the four winners into one neat “Dream Team” table. The result delivers one elite forward, one midfield engine, one defensive wall, and one keeper who refuses to let anything in. It’s like assembling the Avengers, but with shin guards.
+
+The results have given us the core foundation for the powerhouse for a team. Based on these statistics, we were able to determine who was the best in their own aspects, from strong forwards and midfielders to masterclass goalkeepers and defenders, the stats show that these players are more than capable of out performing the rest and consistently bringing home the win.
 
 # *Summary*
 
